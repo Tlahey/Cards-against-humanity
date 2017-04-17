@@ -1,8 +1,13 @@
 <div >
+
+    Nom de l'utilisateur : {{ Username }}
+
     <div >
         <!-- QUESTIONS --> 
         <div >
-            <div class="card card-question">Question</div>
+            <div class="card card-question">
+                {{ QuestionCard.Value }}
+            </div>
 
             <div id="content-message">
                 <ul id="messages" >
@@ -14,15 +19,36 @@
                     <button (click)="submit()">Send</button>
                 </div>
             </div>
-
+            <div>
+                Scores : 
+                <div *ngFor="let player of Players">
+                    {{ (player.Type == 0) ? 'KING' : '' }} {{ player.Nickname }} : {{ player.Score }}
+                </div>
+            </div>
         </div>
 
         <br /> 
 
         <!-- REPONSE -->
-        <div>
-            <div class="card card-reponse">Awnser</div>
+        <div *ngIf="UsersAwnserCars == undefined">
+            <div class="card card-reponse" 
+                *ngFor="let userAwnser of UserAwnserCards"
+                (click)="selectCard(userAwnser)">
+                {{ userAwnser.Value }}
+            </div>
         </div>
+
+        <div>
+            EN ATTENTE DU MASTER : 
+            <div *ngIf="UsersAwnserCars">
+                <div class="card card-reponse" 
+                    *ngFor="let userAwnser of UserAwnserCards"
+                    (click)="selectCard(userAwnser, true)">
+                    {{ userAwnser.Value }}
+                </div>
+            </div>   
+        </div>
+     
     </div>
 
 

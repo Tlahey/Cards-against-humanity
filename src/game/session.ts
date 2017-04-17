@@ -26,7 +26,7 @@ export enum SessionState{
 export interface payloadResponse{
     Players: IPlayerInformations[];
     QuestionCard : ICard;
-    UsersAwnserCars : ICard[];
+    UsersAwnserCards : ICard[];
     Winner: IPlayerInformations;
     CurrentUserAwnserCards: ICard[];
 }
@@ -84,21 +84,22 @@ export class Session{
 
     updateAllPlayers(){
 
+        // Les cartes sélectionnés par les utilisateurs
         let usersSelectedCards = [];
         this.players
             .filter(p => p.Type == PlayerType.PLAYER)
             .forEach(player => {
-                if(player.SelectedCard == undefined){
+                if(player.SelectedCard != undefined){
                     usersSelectedCards.push(player.SelectedCard);
                 }
             }); 
 
         let response : payloadResponse = {
             Players: this.players.map(p => p.toPlayerInformations()),
-            UsersAwnserCars: (usersSelectedCards.length == this.players.length) ? usersSelectedCards : undefined,
+            UsersAwnserCards: (usersSelectedCards.length == (this.players.length - 1)) ? usersSelectedCards : undefined,
             QuestionCard: {
                 'Guid': this._selectedQuestionCard.Guid,
-                'Value': this._selectedQuestionCard.Value
+                'Value': this._selectedQuestionCard.Value.replace("{0}", "____")
             } as ICard,
             Winner: this.players.find(p => p.Score >= pointsForWin),
             CurrentUserAwnserCards: undefined
@@ -108,10 +109,11 @@ export class Session{
         // this._ioServer.in(this.Guid).emit('message', 'payload', response);
         this.players.forEach(p => {
             response.CurrentUserAwnserCards = undefined;
-            response.CurrentUserAwnserCards = p.Cards.map(c => { return {
-                'Guid': c.Guid,
-                'Value': c.Value
-            } as ICard });
+            if(p.Cards.length > 0)
+                response.CurrentUserAwnserCards = p.Cards.map(c => { return {
+                    'Guid': c.Guid,
+                    'Value': c.Value
+                } as ICard });
             p.PlayerSocket.emit('message', 'payload', response);            
         });
     }
