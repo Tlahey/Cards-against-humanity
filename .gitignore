@@ -7,3 +7,4 @@ node/**.js
 node/**.js.map
 node/**/*.js
 node/**/*.js.map
+!node/web/js/lib/**
