@@ -12,7 +12,7 @@ export default class DataBase{
     // Récupère l'ensemble des cartes de la base de données
     public getCards() : Promise<CardResult>{
         return new Promise((success, reject) => {
-           fs.readFile('./node/datas/cards.json', 'utf8', (err, datas) => {
+           fs.readFile('./src/datas/cards.json', 'utf8', (err, datas) => {
                 
                 if(err){
                     console.error("[Database] getCards error : ", err);

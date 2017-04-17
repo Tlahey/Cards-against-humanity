@@ -10,4 +10,4 @@ class CardQuestion extends card_1.default {
     }
 }
 exports.default = CardQuestion;
-//# sourceMappingURL=CardQuestion.js.map
+//# sourceMappingURL=cardQuestion.js.map

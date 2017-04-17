@@ -67,7 +67,7 @@ export class Player {
         this.ChoiceWinner = undefined;
         this.SelectedCard = undefined;
         if(reinitAll){
-            this.Cards = undefined;
+            this.Cards = [];
             this._session = undefined;
             this.Score = 0;
         }

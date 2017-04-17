@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Q = require("q");
 const player_1 = require("./player");
 const database_1 = require("./database/database");
-const Session_1 = require("./Session");
+const session_1 = require("./session");
 class Game {
     constructor(_ioServer) {
         this._ioServer = _ioServer;
@@ -31,7 +31,7 @@ class Game {
             let sessionsAvailable = this._sessionArray.find((data) => !data.isFull());
             // Si aucune session n'a été trouvée
             if (sessionsAvailable == undefined) {
-                let newSession = new Session_1.Session(this._ioServer, this);
+                let newSession = new session_1.Session(this._ioServer, this);
                 newSession.joinPlayer(new player_1.Player(playerSocket, newSession, playerUserName));
                 this._sessionArray.push(newSession);
             }
@@ -46,7 +46,7 @@ class Game {
             let sessionsAvailable = this._sessionArray.find((data) => !data.isFull());
             // Si aucune session n'a été trouvée
             if (sessionsAvailable == undefined) {
-                let newSession = new Session_1.Session(this._ioServer, this);
+                let newSession = new session_1.Session(this._ioServer, this);
                 player.setSession(newSession);
                 newSession.joinPlayer(player);
                 this._sessionArray.push(newSession);

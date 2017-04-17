@@ -1,11 +1,9 @@
-/// <reference path="../../../typings/node/node.d.ts" />
-
-
 interface Planet {
     name:string
     isRocky:boolean
 }
 
+var angular: any;
 var planetsModule = angular.module('planetsModule',[]);
 
 class ControllerService {
@@ -17,14 +15,14 @@ class ControllerService {
         // this._socket = io();
         var socket = io();
       
-        $('form').submit(function(){
+        $('form').submit(() => {
             socket.emit('sendData', $('#m').val());
             $('#m').val('');
             return false;
         });
 
         // Lorsque l'utilisateur reçoit un message
-        socket.on('message', function(route, data){
+        socket.on('message', (route, data) => {
             switch(route){
                 // Permet de doner le pseudo de l'utilisateur
                 case 'GetUserName':
@@ -65,8 +63,6 @@ class PlanetsController {
         this.ControllerService.test();
     }
 }
-
-
 
 
 planetsModule.service('controllerService',ControllerService);

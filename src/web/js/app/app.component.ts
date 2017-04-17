@@ -1,42 +1,25 @@
-/// <reference path="../../../typings/node/node.d.ts" />
-
 import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
-  template: `<ul id="messages" >
-      <li *ngFor="let planet of planets">{{planet}}</li>
+  template: `
+  
+    <ul id="messages" >
+      <!--<li *ngFor="let planet of planets">{{planet}}</li>-->
     </ul>
-    <input type="button" (click)="add()" />
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>`
+
+    <input id="m" /><button (click)="submit()">Send</button>
+
+    `
 })
+
 export class AppComponent { 
     // http://builtwithangular2.com/
-    
-    public planets :string[];
+
     public socket;
 
     constructor(){
-
-        this.planets = [
-            'Mercure', 
-            'Venus', 
-            'Terre', 
-            'Mars', 
-            'Jupiter',
-            'Saturne',
-            'Uranus',
-            'Neptune'
-        ];
-             
-        $('form').submit(() => {
-            this.socket.emit('sendData', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        
+       
         this.socket = io();
         this.socket.on('message', (route, data) => {
             switch(route){
@@ -45,13 +28,11 @@ export class AppComponent {
                     this.socket.emit('adduser', prompt(data.message));
                     break;
                 case 'clear':
-                    this.planets = [];
-                    // $('#messages').empty();
+                    $('#messages').empty();
                     break;
                 case 'SendMessage':
                 default:
-                    this.planets.push(data);
-                    // $('#messages').append($('<li>').text(data));
+                    $('#messages').append($('<li>').text(data));
                     break;
             }
 
@@ -59,10 +40,10 @@ export class AppComponent {
 
     }
 
-    add(){
-        this.planets.push('test');
+    public submit(){
+        this.socket.emit('sendData', $('#m').val());
+        $('#m').val('');
+        return false;
     }
-
-
 
 }

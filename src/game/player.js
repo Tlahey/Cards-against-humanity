@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Session_1 = require("./Session");
+const session_1 = require("./session");
 var PlayerType;
 (function (PlayerType) {
     PlayerType[PlayerType["MASTER"] = 0] = "MASTER";
@@ -34,7 +34,7 @@ class Player {
                     this._session.update();
                     break;
                 case PlayerType.MASTER:
-                    if (this._session.SessionState == Session_1.SessionState.WAIT_MASTER_RESPONSE) {
+                    if (this._session.SessionState == session_1.SessionState.WAIT_MASTER_RESPONSE) {
                         this.masterReceiveData(data);
                         this._session.update();
                     }
@@ -54,7 +54,7 @@ class Player {
         this.ChoiceWinner = undefined;
         this.SelectedCard = undefined;
         if (reinitAll) {
-            this.Cards = undefined;
+            this.Cards = [];
             this._session = undefined;
             this.Score = 0;
         }

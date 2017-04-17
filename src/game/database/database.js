@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
-const CardQuestion_1 = require("../card/CardQuestion");
-const CardAwnser_1 = require("../card/CardAwnser");
+const cardQuestion_1 = require("../card/cardQuestion");
+const cardAwnser_1 = require("../card/cardAwnser");
 class DataBase {
     // Récupère l'ensemble des cartes de la base de données
     getCards() {
         return new Promise((success, reject) => {
-            fs.readFile('./node/datas/cards.json', 'utf8', (err, datas) => {
+            fs.readFile('./src/datas/cards.json', 'utf8', (err, datas) => {
                 if (err) {
                     console.error("[Database] getCards error : ", err);
                 }
@@ -23,7 +23,7 @@ class DataBase {
         console.log("[Game] _createQuestionCards");
         let cardQuestion = [];
         jsonCardQuestion.forEach((card) => {
-            cardQuestion.push(new CardQuestion_1.default(card));
+            cardQuestion.push(new cardQuestion_1.default(card));
         });
         return cardQuestion;
     }
@@ -32,7 +32,7 @@ class DataBase {
         console.log("[Game] _createAwnserCard");
         let cardAwnser = [];
         jsonCardAwnser.forEach((card) => {
-            cardAwnser.push(new CardAwnser_1.default(card));
+            cardAwnser.push(new cardAwnser_1.default(card));
         });
         return cardAwnser;
     }
