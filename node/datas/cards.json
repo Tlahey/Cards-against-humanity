@@ -1,0 +1,14 @@
+{ 
+    "questions" : [
+        { "guid": "807C2E81-A03B-4B23-B070-83C0564593AE", "value": "L'Egypte a les pyramides, la France a {0}" },
+        { "guid": "E13C313D-A024-4FBB-9514-FF06A008959B", "value": "La vraie classe, c'est {0}" }
+    ],
+    "awnsers" : [
+        { "guid": "09BE7A22-EC94-404C-A2DA-3C8B4A485041", "value": "Maître Gims" },
+        { "guid": "00CB15C6-78C8-40D1-BC4E-593FE71E37B5", "value": "Ta mère" },
+        { "guid": "B83490FC-F93F-4A3C-BDE8-2C334785C76B", "value": "Jacquie et Michel" },
+        { "guid": "FC94EBAB-8186-429E-9B91-2AC2D1CC860F", "value": "Se masturber dans l'attraction it's a small word à DisneyLand" },
+        { "guid": "8F6BEA0A-26ED-4ED2-8394-0EA7ADCAD056", "value": "Un sexto envoyé à Maman par erreur" },
+        { "guid": "685AE8E1-B2FB-4D12-951A-D9033817228B", "value": "Donner des maracas à un ami malade de Parkinson" }
+    ]
+}
