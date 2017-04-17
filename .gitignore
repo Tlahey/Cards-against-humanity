@@ -2,8 +2,11 @@
 npm-debug.log
 .vscode
 node_modules
+*.js 
+*.js.map
 src/**.js
 src/**.js.map
 src/**/*.js
 src/**/*.js.map
 !src/web/js/lib/**
+!src/web/js/app/config.js
