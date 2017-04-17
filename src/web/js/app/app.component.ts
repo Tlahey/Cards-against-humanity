@@ -2,15 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
-  template: `
-  
-    <ul id="messages" >
-      <!--<li *ngFor="let planet of planets">{{planet}}</li>-->
-    </ul>
-
-    <input id="m" /><button (click)="submit()">Send</button>
-
-    `
+  templateUrl: './html/app.component.html' 
 })
 
 export class AppComponent { 
@@ -28,7 +20,10 @@ export class AppComponent {
                     this.socket.emit('adduser', prompt(data.message));
                     break;
                 case 'clear':
-                    $('#messages').empty();
+                    // $('#messages').empty();
+                    break;
+                case 'payload':
+                    console.log(data);
                     break;
                 case 'SendMessage':
                 default:

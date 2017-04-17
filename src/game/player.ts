@@ -7,14 +7,21 @@ export enum PlayerType{
     PLAYER
 }
 
+export class IPlayerInformations{
+    Nickname: string;
+    Score: number;
+    Type: PlayerType;
+    HaveSelectedCard: boolean;
+}
 
-export class Player {
+export class Player implements IPlayerInformations {
 
     public Cards: CardAwnser[] = [];
     public Type : PlayerType;
     public SelectedCard: CardAwnser;
     public ChoiceWinner: Player;
     public Score: number;
+    public HaveSelectedCard: boolean;
 
     constructor(public PlayerSocket : SocketIO.Socket, private _session : Session, public Nickname: string){
         PlayerSocket['Player'] = this;
@@ -54,6 +61,15 @@ export class Player {
 
         // Un joueur à été créé
         console.log('[Player] - User created');
+    }
+
+    toPlayerInformations(): IPlayerInformations {
+        return {
+            'Nickname': this.Nickname,
+            'Score': this.Score,
+            'Type': this.Type,
+            'HaveSelectedCard': false
+        } as IPlayerInformations;
     }
 
     setSession(session: Session){

@@ -1,11 +1,12 @@
 import { CardUnitJSON } from './../interfaceData';
+import { ICard } from "./iCard";
 
 enum CardType{
     QUESTION,
     AWNSER
 }
 
-export default class Card {
+export default class Card implements ICard {
     
     protected _cardType: CardType;
     

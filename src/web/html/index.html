@@ -1,49 +1,3 @@
-<!--
-<!doctype html>
-<html ng-app="planetsModule">
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-
-      .card { height: 87px; width: 56px; border-radius: 10px; }
-      .question { background-color:black; color: white; }
-      .awnser { background-color: white; color: black; }
-
-    </style>
-
-    <script src="./js/lib/socket.io-1.4.5.min.js"></script>
-    <script src="./js/lib/jquery-1.11.1.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
-
-    <script src="./js/app/test.js"></script>
-
-  </head>
-  <body  ng-controller="PlanetsController as planetsController">
-
-    <ul id="messages" >
-      <li ng-repeat="planet in planetsController.planets">{{planet.name}}</li>
-    </ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-
-    <script>
-      
-
-
-    </script>
-  </body>
-</html>
--->
-
 <!DOCTYPE html>
 <html >
 
@@ -59,6 +13,7 @@
       System.import('app')
         .catch(console.error.bind(console));
     </script>
+    <link rel="stylesheet" href="./css/style.css">
   </head>
 
   <body>

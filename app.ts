@@ -13,6 +13,8 @@ var httpServer = http.createServer(app);
 var ioServer = io(httpServer);
 
 app.use("/js",  express.static(__dirname + '/src/web/js'));
+app.use("/css",  express.static(__dirname + '/src/web/css'));
+app.use("/html",  express.static(__dirname + '/src/web/html'));
 
 app.use("/node_modules",  express.static(__dirname + '/node_modules'));
 
@@ -39,7 +41,7 @@ ioServer.on('connection', (socket) => {
             _game.connectPlayer(socket, userName);
         });
 
-        
+        // todo : déconnexion
         
         
     });

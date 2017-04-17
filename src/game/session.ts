@@ -1,6 +1,7 @@
+import { ICard } from './card/iCard';
 import * as io from "socket.io";
 
-import { Player, PlayerType } from './player';
+import { Player, PlayerType, IPlayerInformations } from './player';
 import Game from './game';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
@@ -20,6 +21,14 @@ export enum SessionState{
     MASTER_GIVE_REPONSE,
 
     GAME_END
+}
+
+export interface payloadResponse{
+    Players: IPlayerInformations[];
+    QuestionCard : ICard;
+    UsersAwnserCars : ICard[];
+    Winner: IPlayerInformations;
+    CurrentUserAwnserCards: ICard[];
 }
 
 // CONFIGURATION SESSION 
@@ -73,7 +82,42 @@ export class Session{
         this.beginSession();
     }
 
+    updateAllPlayers(){
+
+        let usersSelectedCards = [];
+        this.players
+            .filter(p => p.Type == PlayerType.PLAYER)
+            .forEach(player => {
+                if(player.SelectedCard == undefined){
+                    usersSelectedCards.push(player.SelectedCard);
+                }
+            }); 
+
+        let response : payloadResponse = {
+            Players: this.players.map(p => p.toPlayerInformations()),
+            UsersAwnserCars: (usersSelectedCards.length == this.players.length) ? usersSelectedCards : undefined,
+            QuestionCard: {
+                'Guid': this._selectedQuestionCard.Guid,
+                'Value': this._selectedQuestionCard.Value
+            } as ICard,
+            Winner: this.players.find(p => p.Score >= pointsForWin),
+            CurrentUserAwnserCards: undefined
+        } as payloadResponse;
+
+        // On envoie pour chacun des joueurs, contient des informations unique à l'utilisateur
+        // this._ioServer.in(this.Guid).emit('message', 'payload', response);
+        this.players.forEach(p => {
+            response.CurrentUserAwnserCards = undefined;
+            response.CurrentUserAwnserCards = p.Cards.map(c => { return {
+                'Guid': c.Guid,
+                'Value': c.Value
+            } as ICard });
+            p.PlayerSocket.emit('message', 'payload', response);            
+        });
+    }
+
     sendToAllPlayers(message: string, functionName?:string){
+        // Toujours envoyer les informations suivantes : 
         if(this.players.length > 0){
             this._ioServer.in(this.Guid).emit('message', (functionName) ? functionName : 'SendMessage', message);
             console.log("[Session] Send message (function " + functionName + ") to all players : ", message);
@@ -282,6 +326,8 @@ export class Session{
                 this.closeSession();
                 break;
         }
+        
+        this.updateAllPlayers();
     }
 
     private closeSession(){
