@@ -1,8 +1,7 @@
 # Add any directories, files, or patterns you don't want to be tracked by version control
 npm-debug.log
 .vscode
-node/node_modules
-node/typings
+node_modules
 node/**.js
 node/**.js.map
 node/**/*.js
