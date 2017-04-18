@@ -107,15 +107,15 @@ export class Session{
             }); 
 
         let response : payloadResponse = {
-            Players: this.players.map(p => p.toPlayerInformations()),
-            UsersAwnserCards: (usersSelectedCards.length == (this.players.length - 1)) ? usersSelectedCards : undefined,
-            QuestionCard: {
+            'Players': this.players.map(p => p.toPlayerInformations()),
+            'UsersAwnserCards': (usersSelectedCards.length == (this.players.length - 1)) ? usersSelectedCards : undefined,
+            'QuestionCard': {
                 'Guid': this._selectedQuestionCard.Guid,
                 'Value': this._selectedQuestionCard.Value.replace("{0}", "____")
             } as ICard,
-            Winner: this.players.find(p => p.Score >= pointsForWin),
-            CurrentUserAwnserCards: undefined,
-            State: this.SessionState
+            'Winner': this.players.find(p => p.Score >= pointsForWin),
+            'CurrentUserAwnserCards': undefined,
+            'State': this.SessionState
         } as payloadResponse;
 
         // On envoie pour chacun des joueurs, contient des informations unique à l'utilisateur
@@ -205,7 +205,7 @@ export class Session{
         this._cardsAwnser = this._cardsAwnser.concat(tempArray);       
     }
 
-    public update(){
+    public update(playerGuid? : string){
         console.log('[Session] Update ', this._sessionState);
         /* Si le jeu commence
             - on donne les nouvelles cartes
@@ -281,10 +281,13 @@ export class Session{
 
                 break;
             case SessionState.MASTER_GIVE_REPONSE:
+                var masterPlayer : Player = this.players.find(p => p.Type == PlayerType.MASTER);
+                if(masterPlayer.Guid != playerGuid)
+                    return;
+
                 // On envoi la meilleur réponse aux joueurs
                 this.sendToAllPlayers('', MessageType.CLEAR);
 
-                var masterPlayer : Player = this.players.find(p => p.Type == PlayerType.MASTER);
                 this.sendToAllPlayers(`Phrase gagante : ${this._selectedQuestionCard.toString(masterPlayer.ChoiceWinner.SelectedCard)}`, MessageType.IMPORTANT);
                 this.sendToAllPlayers(`Le joueur ${masterPlayer.ChoiceWinner.Nickname} gagne le point.`, MessageType.IMPORTANT);
 
@@ -353,7 +356,7 @@ export class Session{
 
 }
 
-class Guid {
+export class Guid {
     static newGuid() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);

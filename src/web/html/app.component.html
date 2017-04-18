@@ -1,6 +1,7 @@
 <div >
 
-    Nom de l'utilisateur : {{ Username }}
+    Nom de l'utilisateur : {{ Username }} <br/>
+    Current State : {{ getCurrentState() }}
 
     <div >
         <!-- QUESTIONS --> 
@@ -22,7 +23,7 @@
             <div>
                 Scores : 
                 <div *ngFor="let player of Players">
-                    {{ (player.Type == 0) ? 'KING' : '' }} {{ player.Nickname }} : {{ player.Score }}
+                    {{ formatPlayerInformations(player) }}
                 </div>
             </div>
         </div>
@@ -30,24 +31,28 @@
         <br /> 
 
         <!-- REPONSE -->
-        <div *ngIf="UsersAwnserCars == undefined">
-            <div class="card card-reponse" 
-                *ngFor="let userAwnser of UserAwnserCards"
-                (click)="selectCard(userAwnser)">
-                {{ userAwnser.Value }}
-            </div>
-        </div>
+        <div *ngIf="Player != undefined"> 
 
-        <div>
-            EN ATTENTE DU MASTER : 
-            <div *ngIf="UsersAwnserCars">
+            <!-- Que pour les joueurs -->
+            <div *ngIf="State == 6 && Player.Type == 1">
                 <div class="card card-reponse" 
                     *ngFor="let userAwnser of UserAwnserCards"
-                    (click)="selectCard(userAwnser, true)">
+                    (click)="selectCard(userAwnser)">
                     {{ userAwnser.Value }}
                 </div>
-            </div>   
-        </div>
+            </div>
+
+            <!-- Pour tous le monde, seulement le master peut sélectionner -->
+            <div *ngIf="State == 7">
+                EN ATTENTE DU MASTER : 
+                <div class="card card-reponse" 
+                    *ngFor="let usersCard of UsersCardChoice"
+                    (click)="selectCard(usersCard)">
+                    {{ usersCard.Value }}
+                </div>
+            </div>
+        </div> 
+
      
     </div>
 

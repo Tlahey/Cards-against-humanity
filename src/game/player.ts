@@ -1,4 +1,4 @@
-import { Session, SessionState, MessageType } from './session';
+import { Session, SessionState, MessageType, Guid } from './session';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
 
@@ -23,7 +23,12 @@ export class Player implements IPlayerInformations {
     public Score: number;
     public HaveSelectedCard: boolean;
 
+    private _guid : string;
+    get Guid() : string { return this._guid; }
+
     constructor(public PlayerSocket : SocketIO.Socket, private _session : Session, public Nickname: string){
+        this._guid = Guid.newGuid();
+
         PlayerSocket['Player'] = this;
         PlayerSocket['Room'] = this._session.Guid;
         PlayerSocket['Username'] = this.Nickname;
@@ -56,12 +61,12 @@ export class Player implements IPlayerInformations {
             switch(this.Type){
                 case PlayerType.PLAYER:
                     this.playerReceiveData(data.data);
-                    this._session.update();
+                    this._session.update(data.playerGuid);
                     break;
                 case PlayerType.MASTER:
                     if(this._session.SessionState == SessionState.WAIT_MASTER_RESPONSE){
                         this.masterReceiveData(data.data);
-                        this._session.update();
+                        this._session.update(data.playerGuid);
                     }
                     break;
             }
@@ -69,6 +74,7 @@ export class Player implements IPlayerInformations {
 
         // Un joueur à été créé
         console.log('[Player] - User created');
+        PlayerSocket.emit('message', 'PlayerGuid', {'guid': this._guid});
     }
 
     toPlayerInformations(): IPlayerInformations {
@@ -76,7 +82,7 @@ export class Player implements IPlayerInformations {
             'Nickname': this.Nickname,
             'Score': this.Score,
             'Type': this.Type,
-            'HaveSelectedCard': false
+            'HaveSelectedCard': (this.SelectedCard != undefined)
         } as IPlayerInformations;
     }
 

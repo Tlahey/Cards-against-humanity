@@ -31,7 +31,7 @@ ioServer.on('connection', (socket) => {
     _game.isInitialized().then(() => {
 
         // On envoi une action de demande de username
-        socket.emit('message', 'GetUserName', {'message': "Quel est votre pseudo ?"})
+        socket.emit('message', 'GetUserName', {'message': "Quel est votre pseudo ?"});
  
         // Quand on reçoit l'information de l'utilisateur
         socket.on('adduser', (userName:string) => {
