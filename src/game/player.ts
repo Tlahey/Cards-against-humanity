@@ -1,4 +1,4 @@
-import { Session, SessionState } from './session';
+import { Session, SessionState, MessageType } from './session';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
 
@@ -43,16 +43,24 @@ export class Player implements IPlayerInformations {
             this.PlayerSocket['Username'] = data;
         });
 
-        PlayerSocket.on('sendData', (data : string) => {
+        PlayerSocket.on('sendData', (data : any) => {
+
             console.log('DATA : ' + data + ' Player : ' + PlayerSocket['Username']);
+
+            // si message envoyé par l'utilisateur
+            if(data.message){
+                this._session.sendToAllPlayers(`[${this.Nickname}] ${data.message}`, MessageType.MESSAGE);
+                return;
+            }
+
             switch(this.Type){
                 case PlayerType.PLAYER:
-                    this.playerReceiveData(data);
+                    this.playerReceiveData(data.data);
                     this._session.update();
                     break;
                 case PlayerType.MASTER:
                     if(this._session.SessionState == SessionState.WAIT_MASTER_RESPONSE){
-                        this.masterReceiveData(data);
+                        this.masterReceiveData(data.data);
                         this._session.update();
                     }
                     break;
@@ -95,13 +103,13 @@ export class Player implements IPlayerInformations {
             this.SelectedCard = this.Cards.find((x) => x.Guid == data);
             if(this.SelectedCard){
                 console.log('SelectedCard : ' + this.SelectedCard);
-                let message = "Votre choix : " + this._session.SelectedQuestionCard.toString(this.SelectedCard);
-                console.log("MESSAGE : " + message);
+                let message = `Votre choix : ${this._session.SelectedQuestionCard.toString(this.SelectedCard)}`;
+                console.log(`MESSAGE : ${message}`);
                 var index = this.Cards.indexOf(this.SelectedCard, 0);
                 if(index > -1){
                     this.Cards.splice(index, 1);
                 }
-                this.sendMessage(message);
+                this.sendMessage(message, MessageType.INFORMATION);
             }else{
                 console.log('[Player] Not found Cards : ', this.Cards);
             }
@@ -112,10 +120,10 @@ export class Player implements IPlayerInformations {
         this.ChoiceWinner = this._session.players.filter(p => p.Type == PlayerType.PLAYER).find(player => player.SelectedCard.Guid == data);
     }
 
-    sendMessage(message: string){
+    sendMessage(message: string, messageType: MessageType){
         // Voir ici, pose problème doit envoyer le message qu'a l'utilisateur
         // this.PlayerSocket.broadcast.emit('message', 'SERVER', "[" + this.PlayerSocket['Username'] + "] - " + message);
-        this.PlayerSocket.emit('message', 'SERVER', "[" + this.PlayerSocket['Username'] + "] - " + message)
+        this.PlayerSocket.emit('message', MessageType, `[${this.PlayerSocket['Username']}] - ${message}`)
     }
 
     givePoint(){
@@ -126,7 +134,7 @@ export class Player implements IPlayerInformations {
     sendAllCard(){
         // console.log("[Player] Send cards to player " + this.Nickname + " : ", this.Cards);
         this.Cards.forEach((card) => {
-            this.sendMessage(card.Guid + " - " + card.Value);
+            this.sendMessage(`${card.Guid} - ${card.Value}`, MessageType.INFORMATION);
         });
 
     }

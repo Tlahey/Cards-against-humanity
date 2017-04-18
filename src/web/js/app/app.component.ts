@@ -1,10 +1,20 @@
 import { Component } from '@angular/core';
 
+enum MessageType{
+    MESSAGE,
+
+    INFORMATION,
+    IMPORTANT,
+    ERROR,
+
+    CLEAR 
+}
+
+
 @Component({
   selector: 'my-app',
   templateUrl: './html/app.component.html' 
 })
-
 export class AppComponent { 
     // http://builtwithangular2.com/
 
@@ -26,9 +36,24 @@ export class AppComponent {
                     this.Username = prompt(data.message);
                     this.socket.emit('adduser', this.Username);
                     break;
-                case 'clear':
-                    // $('#messages').empty();
+
+                case MessageType.CLEAR:
+                    // NOTHING
                     break;
+                case MessageType.ERROR:
+                    $('#messages').append($('<li>').text(data).css("color", "orange"));
+                    break;
+                case MessageType.IMPORTANT:
+                    $('#messages').append($('<li>').text(data).css("background-color", "red").css("color", "white"));
+                    break;
+                case MessageType.INFORMATION:
+                    $('#messages').append($('<li>').text(data).css("color", "blue"));
+                    break;
+                case MessageType.MESSAGE:
+                    $('#messages').append($('<li>').text(data));
+                    break;
+
+
                 case 'payload':
                     this.UserAwnserCards = undefined;
                     this.UsersCardChoice = undefined;
@@ -42,12 +67,11 @@ export class AppComponent {
 
                     console.log(data);
                     break;
-                case 'SendMessage':
-                default:
-                    $('#messages').append($('<li>').text(data));
+                default:  
                     break;
             }
-
+            var element = document.getElementById("messages");
+            element.scrollTop = element.scrollHeight;
         });
 
     }
@@ -57,11 +81,15 @@ export class AppComponent {
         if(onlyMaster == true && user.Type != 0)
             return;
             
-        this.socket.emit('sendData', card.Guid);
+        this.socket.emit('sendData', {
+            'data': card.Guid
+        });
     }
 
     public submit(){
-        this.socket.emit('sendData', $('#m').val());
+        this.socket.emit('sendData', {
+            'message': $('#m').val()
+        });
         $('#m').val('');
         return false;
     }

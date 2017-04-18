@@ -6,6 +6,17 @@ import Game from './game';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
 
+export enum MessageType{
+    MESSAGE,
+
+    INFORMATION,
+    IMPORTANT,
+    ERROR,
+
+    CLEAR
+
+}
+
 export enum SessionState{
     INITIALISATION,
     WAIT_PLAYERS,
@@ -29,6 +40,7 @@ export interface payloadResponse{
     UsersAwnserCards : ICard[];
     Winner: IPlayerInformations;
     CurrentUserAwnserCards: ICard[];
+    State: SessionState;
 }
 
 // CONFIGURATION SESSION 
@@ -77,7 +89,7 @@ export class Session{
         if(!this.isFull()){
             console.log("[Session] joinPlayer");
             this.players.push(player);
-            this.sendToAllPlayers("[Session] Player " + player.Nickname + " join session", undefined);
+            this.sendToAllPlayers(`[Session] Player ${player.Nickname} join session`, MessageType.IMPORTANT);
         }
         this.beginSession();
     }
@@ -102,7 +114,8 @@ export class Session{
                 'Value': this._selectedQuestionCard.Value.replace("{0}", "____")
             } as ICard,
             Winner: this.players.find(p => p.Score >= pointsForWin),
-            CurrentUserAwnserCards: undefined
+            CurrentUserAwnserCards: undefined,
+            State: this.SessionState
         } as payloadResponse;
 
         // On envoie pour chacun des joueurs, contient des informations unique à l'utilisateur
@@ -118,11 +131,11 @@ export class Session{
         });
     }
 
-    sendToAllPlayers(message: string, functionName?:string){
+    sendToAllPlayers(message: string, messageType : MessageType){
         // Toujours envoyer les informations suivantes : 
         if(this.players.length > 0){
-            this._ioServer.in(this.Guid).emit('message', (functionName) ? functionName : 'SendMessage', message);
-            console.log("[Session] Send message (function " + functionName + ") to all players : ", message);
+            this._ioServer.in(this.Guid).emit('message', messageType, message);
+            console.log(`[Session] Send message (function ${messageType}) to all players : `, message);
         }
     }
 
@@ -139,20 +152,20 @@ export class Session{
 
     private setAndSendPlayerTypes(playerMaster : Player){
         playerMaster.Type = PlayerType.MASTER;
-        this.sendToAllPlayers("Le joueur " + playerMaster.Nickname + " est le maitre");
+        this.sendToAllPlayers(`[Session] Le joueur ${playerMaster.Nickname} est le maitre`, MessageType.IMPORTANT);
         this.players.forEach((player : Player, index : number) => {
             if(player != playerMaster){
                 player.Type = PlayerType.PLAYER;
             }
             player.reinitialize(false);
             console.log('[Session] PlayerType ' + player.Nickname + ' = ' + player.Type);
-            player.sendMessage("Player type : " + ((player.Type == PlayerType.MASTER) ? 'MASTER' : 'PLAYER') );
+            player.sendMessage(`Player type : ${((player.Type == PlayerType.MASTER) ? 'MASTER' : 'PLAYER')}`, MessageType.IMPORTANT);
         });
     }
 
     public newQuestion(){
         this.selectQuestionCard();
-        this.sendToAllPlayers("Nouvelle question : " + this._selectedQuestionCard.Value.replace("{0}", "____"), undefined);
+        this.sendToAllPlayers(`[Session] Nouvelle question : ${this._selectedQuestionCard.Value.replace("{0}", "____")}`, MessageType.INFORMATION);
     }
 
     private selectQuestionCard(){
@@ -171,7 +184,7 @@ export class Session{
             
             player.sendAllCard();
         });
-        this.players.find(p => p.Type == PlayerType.MASTER).sendMessage("En attente des autres joueurs");
+        this.players.find(p => p.Type == PlayerType.MASTER).sendMessage("En attente des autres joueurs", MessageType.INFORMATION);
     }
 
     private _giveCards(player : Player){
@@ -200,9 +213,9 @@ export class Session{
         */
         switch (this._sessionState) {
             case SessionState.BEGIN_GAME:
-                this.sendToAllPlayers('', 'clear');
+                this.sendToAllPlayers('', MessageType.CLEAR);
                 console.log('[Session] Update BEGIN_GAME');
-                this.sendToAllPlayers("[Session] Game Begin");
+                this.sendToAllPlayers("[Session] Game Begin", MessageType.IMPORTANT);
                 this._lastWinner = this.players[0];
                 this.setNewState(SessionState.SET_PLAYERS_TYPES);
                 break;
@@ -251,20 +264,16 @@ export class Session{
                     this.setNewState(SessionState.MASTER_GIVE_REPONSE);
                 }else{
                     // On clear la console des utilisateur
-                    this.sendToAllPlayers('', 'clear');
+                    this.sendToAllPlayers('', MessageType.CLEAR);
 
-                    masterPlayer.sendMessage("Select the best anwser");
+                    masterPlayer.sendMessage("Select the best anwser", MessageType.IMPORTANT);
                     let player : Player[] = this.players
                         .filter(p => p.Type == PlayerType.PLAYER);
 
                     // On envoi à tous le monde l'ensemble des réponses
                     player.forEach(player => {
-                            this.sendToAllPlayers(player.SelectedCard.Guid + " - " + this._selectedQuestionCard.toString(player.SelectedCard));
-                        });
-
-                    // Envoyer que le Master est en train de choisir
-                    player.forEach(player => {
-                        player.sendMessage("Le maitre choisi la meilleur réponse.");
+                        this.sendToAllPlayers(`${player.SelectedCard.Guid} - ${this._selectedQuestionCard.toString(player.SelectedCard)}`, MessageType.INFORMATION);
+                        player.sendMessage("Le maitre choisi la meilleur réponse.", MessageType.IMPORTANT);
                     });
 
                     // On demande au master sa meilleur réponse                    
@@ -273,20 +282,20 @@ export class Session{
                 break;
             case SessionState.MASTER_GIVE_REPONSE:
                 // On envoi la meilleur réponse aux joueurs
-                this.sendToAllPlayers('', 'clear');
+                this.sendToAllPlayers('', MessageType.CLEAR);
 
                 var masterPlayer : Player = this.players.find(p => p.Type == PlayerType.MASTER);
-                this.sendToAllPlayers("Phrase gagante : " + this._selectedQuestionCard.toString(masterPlayer.ChoiceWinner.SelectedCard));
-                this.sendToAllPlayers("Le joueur " + masterPlayer.ChoiceWinner.Nickname + " gagne le point.");
+                this.sendToAllPlayers(`Phrase gagante : ${this._selectedQuestionCard.toString(masterPlayer.ChoiceWinner.SelectedCard)}`, MessageType.IMPORTANT);
+                this.sendToAllPlayers(`Le joueur ${masterPlayer.ChoiceWinner.Nickname} gagne le point.`, MessageType.IMPORTANT);
 
                 // On donne le point au gagnant
                 masterPlayer.ChoiceWinner.givePoint();
                 this._lastWinner = masterPlayer.ChoiceWinner;
                 
                 // Récapituler l'ensemble des points 
-                this.sendToAllPlayers("Score des joueurs : ");
+                this.sendToAllPlayers("Score des joueurs : ", MessageType.INFORMATION);
                 this.players.forEach(player => {
-                    this.sendToAllPlayers(player.Nickname + " - " + player.Score);
+                    this.sendToAllPlayers(`${player.Nickname} - ${player.Score}`, MessageType.INFORMATION);
                 });
 
                 // Si un utilisatuer à tous les points alors on GAME_END
@@ -309,7 +318,7 @@ export class Session{
             case SessionState.GAME_END:
                 console.log("[Session] GAME_END");
                 // On envoi un message de fin à tous les joueurs avec le gagnant
-                this.sendToAllPlayers("Jeu fini");
+                this.sendToAllPlayers("Jeu fini", MessageType.IMPORTANT);
                 let winner : Player;
                 for(var i = 0, ii = this.players.length; i < ii; i++){
                     if(this.players[i].Score >= pointsForWin){
@@ -318,7 +327,7 @@ export class Session{
                     }
                 }
 	            // On réinscrit les joueurs dans une nouvelle session
-                this.sendToAllPlayers("Vainqueur : " + winner.Nickname);
+                this.sendToAllPlayers(`Vainqueur : ${winner.Nickname}`, MessageType.IMPORTANT);
 
                 this.players.forEach(player => {
                     player.reinitialize(true);
