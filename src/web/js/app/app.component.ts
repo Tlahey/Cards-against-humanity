@@ -22,10 +22,10 @@ export class AppComponent {
     public socket;
 
     public QuestionCard = {};
-    public UserAwnserCards = [];
+    public UsersAwnserCards = [];
     public Players = [];
     public Username : string;
-    public UsersCardChoice = [];
+    public CurrentUserAwnserCards = [];
 
     private _playerGuid : string;
 
@@ -84,20 +84,24 @@ export class AppComponent {
                     break;
 
                 case 'payload':
-                    this.UserAwnserCards = [];
-                    this.UsersCardChoice = [];
-                    this.QuestionCard = undefined;
                     this.Players = [];
+                    this.QuestionCard = undefined;
+                    this.UsersAwnserCards = [];
+                    
+                    // winner
+                    this.CurrentUserAwnserCards = [];
+                    
+                    
 
-                    this.UserAwnserCards = data.CurrentUserAwnserCards; // cartes de l'utilisateur
-                    this.QuestionCard = data.QuestionCard;  // Carte question
-                    this.Players = data.Players;
-                    this.UsersCardChoice = data.UsersAwnserCars;
+                    this.UsersAwnserCards = data.UsersAwnserCards;              // cartes des utilisateurs quand ils ont tous choisi
+                    this.QuestionCard = data.QuestionCard;                      // Carte question
+                    this.Players = data.Players;                                // Joueur
+                    this.CurrentUserAwnserCards = data.CurrentUserAwnserCards;  // Carte courant de l'utilisateur
 
                     this._currentState = data.State;
 
                     console.log(data);
-                    console.log("this.UsersCardChoice : ", this.UsersCardChoice);
+                    console.log("this.UsersAwnserCards : ", this.UsersAwnserCards);
                     break;
                 default:  
                     break;

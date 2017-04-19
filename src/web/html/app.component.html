@@ -36,7 +36,7 @@
             <!-- Que pour les joueurs -->
             <div *ngIf="State == 6 && Player.Type == 1">
                 <div class="card card-reponse" 
-                    *ngFor="let userAwnser of UserAwnserCards"
+                    *ngFor="let userAwnser of CurrentUserAwnserCards"
                     (click)="selectCard(userAwnser)">
                     {{ userAwnser.Value }}
                 </div>
@@ -44,10 +44,11 @@
 
             <!-- Pour tous le monde, seulement le master peut sélectionner -->
             <div *ngIf="State == 7">
-                EN ATTENTE DU MASTER : 
+                EN ATTENTE DU MASTER :
+                {{ UsersCardChoice | json }} 
                 <div class="card card-reponse" 
-                    *ngFor="let usersCard of UsersCardChoice"
-                    (click)="selectCard(usersCard)">
+                    *ngFor="let usersAwnserCard of UsersAwnserCards"
+                    (click)="selectCard(usersAwnserCard)">
                     {{ usersCard.Value }}
                 </div>
             </div>
