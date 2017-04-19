@@ -36,6 +36,7 @@ export enum SessionState{
 
 export interface payloadResponse{
     Players: IPlayerInformations[];
+    Player: any;
     QuestionCard : ICard;
     UsersAwnserCards : ICard[];
     Winner: IPlayerInformations;
@@ -58,13 +59,13 @@ export class Session{
     private _cardsQuestion: CardQuestion[];
     private _cardsAwnser: CardAwnser[];
     private _lastWinner:Player;
-
     private _sessionState: SessionState;
+    private _selectedQuestionCard: CardQuestion;
+
     get SessionState():SessionState{
         return this._sessionState;
     }
 
-    private _selectedQuestionCard: CardQuestion;
     get SelectedQuestionCard():CardQuestion{
         return this._selectedQuestionCard;
     }
@@ -102,7 +103,10 @@ export class Session{
             .filter(p => p.Type == PlayerType.PLAYER)
             .forEach(player => {
                 if(player.SelectedCard != undefined){
-                    usersSelectedCards.push(player.SelectedCard);
+                    usersSelectedCards.push({
+                        'Guid': player.SelectedCard.Guid,
+                        'Value': player.SelectedCard.Value
+                    });
                 }
             }); 
 
@@ -115,15 +119,18 @@ export class Session{
             } as ICard,
             'Winner': this.players.find(p => p.Score >= pointsForWin),
             'CurrentUserAwnserCards': undefined,
+            'Player': undefined,
             'State': this.SessionState
         } as payloadResponse;
 
         // On envoie pour chacun des joueurs, contient des informations unique à l'utilisateur
         // this._ioServer.in(this.Guid).emit('message', 'payload', response);
         this.players.forEach(p => {
-            response.CurrentUserAwnserCards = undefined;
+            response['CurrentUserAwnserCards'] = undefined;
+            response['Player'] = p.toPlayerInformations();
+            response['Player']['Guid'] = p.Guid;
             if(p.Cards.length > 0)
-                response.CurrentUserAwnserCards = p.Cards.map(c => { return {
+                response['CurrentUserAwnserCards'] = p.Cards.map(c => { return {
                     'Guid': c.Guid,
                     'Value': c.Value
                 } as ICard });
@@ -261,7 +268,7 @@ export class Session{
             
                 var masterPlayer : Player = this.players.find(p => p.Type == PlayerType.MASTER);
                 if(masterPlayer.ChoiceWinner){
-                    this.setNewState(SessionState.MASTER_GIVE_REPONSE);
+                    this.setNewState(SessionState.MASTER_GIVE_REPONSE, );
                 }else{
                     // On clear la console des utilisateur
                     this.sendToAllPlayers('', MessageType.CLEAR);
@@ -282,8 +289,6 @@ export class Session{
                 break;
             case SessionState.MASTER_GIVE_REPONSE:
                 var masterPlayer : Player = this.players.find(p => p.Type == PlayerType.MASTER);
-                if(masterPlayer.Guid != playerGuid)
-                    return;
 
                 // On envoi la meilleur réponse aux joueurs
                 this.sendToAllPlayers('', MessageType.CLEAR);
@@ -325,20 +330,31 @@ export class Session{
                 let winner : Player;
                 for(var i = 0, ii = this.players.length; i < ii; i++){
                     if(this.players[i].Score >= pointsForWin){
+                        this.players[i].IsWinner = true;
                         winner = this.players[i];
                         break;
-                    }
+                    }else
+                        this.players[i].IsWinner = false;
                 }
 	            // On réinscrit les joueurs dans une nouvelle session
                 this.sendToAllPlayers(`Vainqueur : ${winner.Nickname}`, MessageType.IMPORTANT);
 
+                this.updateAllPlayers();
+
+                this.sendToAllPlayers(`Affectation à une nouvelle partie dans 10 secondes.`, MessageType.IMPORTANT);
                 this.players.forEach(player => {
                     player.reinitialize(true);
-                    this._game.connectExistingPlayer(player);
+
+                    // On reconnecte l'ensemble des joueurs dans une nouvelle session.
+                    setTimeout(((p) => {
+                        this._game.connectExistingPlayer(p);   
+                    })(player), 10000);
+                    
                 });
+
                 // On ferme la session
                 this.closeSession();
-                break;
+                return;
         }
         
         this.updateAllPlayers();
@@ -347,6 +363,13 @@ export class Session{
     private closeSession(){
         // on set toutes les var à undefined
         // on supprime la session du jeu
+        this.Guid = undefined;
+        this.players = undefined; 
+        this._cardsQuestion = undefined;
+        this._cardsAwnser = undefined;
+        this._lastWinner = undefined;
+        this._sessionState = undefined;
+        this._selectedQuestionCard = undefined;
     }
 
     private setNewState(newSessionState: SessionState){

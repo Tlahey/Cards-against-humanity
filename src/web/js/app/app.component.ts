@@ -19,21 +19,18 @@ enum MessageType{
 export class AppComponent { 
     // http://builtwithangular2.com/
 
+    public PlayloadDatas : any;
+
     public socket;
 
     public QuestionCard = {};
     public UsersAwnserCards = [];
     public Players = [];
+    public Player : any = {};
     public Username : string;
     public CurrentUserAwnserCards = [];
 
     private _playerGuid : string;
-
-    get Player() : any { 
-        let pl = this.Players.find(p => p.Nickname == this.Username);
-        // console.log("player : ", pl);
-        return pl;
-    }
 
     private _currentState : number;
     private _availableStates : any = {
@@ -79,15 +76,12 @@ export class AppComponent {
                     $('#messages').append($('<li>').text(data));
                     break;
 
-                case 'PlayerGuid':
-                    this._playerGuid = data.guid;
-                    break;
-
                 case 'payload':
                     this.Players = [];
                     this.QuestionCard = undefined;
                     this.UsersAwnserCards = [];
-                    
+                    this.Player = undefined;
+
                     // winner
                     this.CurrentUserAwnserCards = [];
                     
@@ -99,6 +93,10 @@ export class AppComponent {
                     this.CurrentUserAwnserCards = data.CurrentUserAwnserCards;  // Carte courant de l'utilisateur
 
                     this._currentState = data.State;
+
+                    this.Player = data.Player;
+
+                    this.PlayloadDatas = data;
 
                     console.log(data);
                     console.log("this.UsersAwnserCards : ", this.UsersAwnserCards);
@@ -148,7 +146,7 @@ export class AppComponent {
         // On peut émettre des messages que de 6 a 8
         if(this._currentState >= 6 && this._currentState <= 8)
             this.socket.emit('sendData', {
-                'playerGuid': this._playerGuid,
+                'playerGuid': this.Player.Guid,
                 'data': card.Guid
             });
     }

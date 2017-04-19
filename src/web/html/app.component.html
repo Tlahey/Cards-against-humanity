@@ -1,8 +1,9 @@
 <div >
 
     Nom de l'utilisateur : {{ Username }} <br/>
-    Current State : {{ getCurrentState() }}
+    Current State : {{ getCurrentState() }}<br/>
 
+    Payload : <pre>{{PlayloadDatas | json}}</pre>
     <div >
         <!-- QUESTIONS --> 
         <div >
@@ -45,11 +46,10 @@
             <!-- Pour tous le monde, seulement le master peut sélectionner -->
             <div *ngIf="State == 7">
                 EN ATTENTE DU MASTER :
-                {{ UsersCardChoice | json }} 
                 <div class="card card-reponse" 
                     *ngFor="let usersAwnserCard of UsersAwnserCards"
                     (click)="selectCard(usersAwnserCard)">
-                    {{ usersCard.Value }}
+                    {{ usersAwnserCard.Value }}
                 </div>
             </div>
         </div> 

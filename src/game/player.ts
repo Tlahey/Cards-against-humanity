@@ -22,6 +22,7 @@ export class Player implements IPlayerInformations {
     public ChoiceWinner: Player;
     public Score: number;
     public HaveSelectedCard: boolean;
+    public IsWinner : boolean;
 
     private _guid : string;
     get Guid() : string { return this._guid; }
@@ -50,7 +51,7 @@ export class Player implements IPlayerInformations {
 
         PlayerSocket.on('sendData', (data : any) => {
 
-            console.log('DATA : ' + data + ' Player : ' + PlayerSocket['Username']);
+            console.log(`Player : ${PlayerSocket['Username']} Data : `, data);
 
             // si message envoyé par l'utilisateur
             if(data.message){
@@ -61,20 +62,19 @@ export class Player implements IPlayerInformations {
             switch(this.Type){
                 case PlayerType.PLAYER:
                     this.playerReceiveData(data.data);
-                    this._session.update(data.playerGuid);
                     break;
                 case PlayerType.MASTER:
                     if(this._session.SessionState == SessionState.WAIT_MASTER_RESPONSE){
                         this.masterReceiveData(data.data);
-                        this._session.update(data.playerGuid);
                     }
                     break;
             }
+
+            this._session.update(data.playerGuid);
         });
 
         // Un joueur à été créé
         console.log('[Player] - User created');
-        PlayerSocket.emit('message', 'PlayerGuid', {'guid': this._guid});
     }
 
     toPlayerInformations(): IPlayerInformations {
