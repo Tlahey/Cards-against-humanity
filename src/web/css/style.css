@@ -1,3 +1,11 @@
+#content-game{
+    max-height: calc(100% - 260px); 
+    overflow-y: auto; 
+    min-height: calc(100% - 260px); 
+    position: absolute; 
+    width: 99%;
+}
+
 .card{
     display:inline-block;
     font-size: larger;
@@ -22,13 +30,16 @@
 }
 
 #content-message{
-    border:1px solid black; 
-    display:inline-block;
-    position: absolute;
-    padding: 0 10px;
-    margin-left: 10%;
-    min-width: 600px;
-    max-width: 600px;
+    border: 1px solid black;
+    /* display: inline-block; */
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    /* padding: 0 10px; */
+    /* margin-left: 10%; */
+    /* min-width: 600px; */
+    /* max-width: 600px; */
+    width: 100%;
     min-height: 245px;
     max-height: 245px;
 }

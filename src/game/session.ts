@@ -5,6 +5,7 @@ import { Player, PlayerType, IPlayerInformations } from './player';
 import Game from './game';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
+import { Configuration } from "./configuration";
 
 export enum MessageType{
     MESSAGE,
@@ -45,9 +46,9 @@ export interface payloadResponse{
 }
 
 // CONFIGURATION SESSION 
-var pointsForWin: number = 1;
-var maxPlayer: number = 2;
-var cardsCountByPlayer: number = 2;
+var pointsForWin: number = Configuration.Game.POINTS_FOR_WIN;
+var maxPlayer: number = Configuration.Game.MAX_PLAYERS;
+var cardsCountByPlayer: number = Configuration.Game.CARDS_BY_PLAYERS;
 
 /*
     La session correspond à une partie entre différents joueurs.
@@ -61,6 +62,7 @@ export class Session{
     private _lastWinner:Player;
     private _sessionState: SessionState;
     private _selectedQuestionCard: CardQuestion;
+    SessionName : string;
 
     get SessionState():SessionState{
         return this._sessionState;
@@ -76,6 +78,7 @@ export class Session{
         this.Guid = Guid.newGuid();
         this._cardsQuestion = this._game.getRandomCardQuestion();
         this._cardsAwnser = this._game.getRandomCardAwnser();
+        this.SessionName = Utils.randNameElite();
 
         console.log("[Session] Create new session " + this.Guid);
         this._sessionState = SessionState.WAIT_PLAYERS;
@@ -87,12 +90,14 @@ export class Session{
     }
 
     joinPlayer(player : Player){
-        if(!this.isFull()){
-            console.log("[Session] joinPlayer");
-            this.players.push(player);
-            this.sendToAllPlayers(`[Session] Player ${player.Nickname} join session`, MessageType.IMPORTANT);
-        }
-        this.beginSession();
+        return new Promise<any>((resolve) => {
+            if(!this.isFull()){
+                console.log("[Session] joinPlayer");
+                this.players.push(player);
+                this.sendToAllPlayers(`[Session] Player ${player.Nickname} join session`, MessageType.IMPORTANT);
+            }
+            this.beginSession();
+        });
     }
 
     updateAllPlayers(){
@@ -223,7 +228,7 @@ export class Session{
                 this.sendToAllPlayers('', MessageType.CLEAR);
                 console.log('[Session] Update BEGIN_GAME');
                 this.sendToAllPlayers("[Session] Game Begin", MessageType.IMPORTANT);
-                this._lastWinner = this.players[0];
+                this._lastWinner = this.players[0]; // TODO : gérer un utilisateur aléatoire
                 this.setNewState(SessionState.SET_PLAYERS_TYPES);
                 break;
             // Donne les nouvelles states des joueurs
@@ -348,12 +353,11 @@ export class Session{
                     // On reconnecte l'ensemble des joueurs dans une nouvelle session.
                     setTimeout(((p) => {
                         this._game.connectExistingPlayer(p);   
+                        // On ferme la session
+                        this.closeSession();
                     })(player), 10000);
                     
                 });
-
-                // On ferme la session
-                this.closeSession();
                 return;
         }
         
@@ -363,6 +367,8 @@ export class Session{
     private closeSession(){
         // on set toutes les var à undefined
         // on supprime la session du jeu
+        this._game.createNewSession();
+        this._game.removeSession(this);
         this.Guid = undefined;
         this.players = undefined; 
         this._cardsQuestion = undefined;
@@ -388,3 +394,25 @@ export class Guid {
     }
 }
 
+export class Utils {
+    static randNameElite(): string {
+        var pairs = "..lexegezacebiso"
+                    "usesarmaindirea."
+                    "eratenberalaveti"
+                    "edorquanteisrion";
+        
+        var pair1 = 2 * Math.floor(Math.random() * (pairs.length / 2));
+        var pair2 = 2 * Math.floor(Math.random() * (pairs.length / 2));
+        var pair3 = 2 * Math.floor(Math.random() * (pairs.length / 2));
+        var pair4 = 2 * Math.floor(Math.random() * (pairs.length / 2));
+
+        var name = "";
+        name += pairs.substr(pair1, 2);
+        name += pairs.substr(pair2, 2);
+        name += pairs.substr(pair3, 2);
+        name += pairs.substr(pair4, 2);
+        name = name.replace(/[.]/g, "");
+        
+        return name;
+    }
+}

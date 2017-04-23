@@ -22,6 +22,9 @@ export class AppComponent {
     public PlayloadDatas : any;
 
     public socket;
+    public AvailablesSessions : Array<any> = [];
+    public SelectedSession : any = {};
+    public IsConnectedToSession : boolean = false;
 
     public QuestionCard = {};
     public UsersAwnserCards = [];
@@ -30,7 +33,7 @@ export class AppComponent {
     public Username : string;
     public CurrentUserAwnserCards = [];
 
-    private _playerGuid : string;
+    private _playerGuid : string = undefined;
 
     private _currentState : number;
     private _availableStates : any = {
@@ -49,20 +52,51 @@ export class AppComponent {
         "9": "GAME_END"
     };
 
+    private dispose(){
+        this.AvailablesSessions = [];
+        this.SelectedSession = {};
+        this.IsConnectedToSession = false;
+
+        this.QuestionCard = {};
+        this.UsersAwnserCards = [];
+        this.Players = [];
+        this.Player = {};
+        this.Username = undefined;
+        this.CurrentUserAwnserCards = [];
+
+        this._playerGuid = undefined;
+
+        this._currentState = undefined;
+    }
+
     constructor(){
        
         this.socket = io();
         this.socket.on('message', (route, data) => {
             switch(route){
+
+                // Récupère les sessions valables
+                case 'getSessions': 
+                    // On clear tout 
+                    this.dispose();
+                    this.AvailablesSessions = data;
+                    break;
+
                 // Permet de doner le pseudo de l'utilisateur
                 case 'GetUserName':
                     this.Username = prompt(data.message);
-                    this.socket.emit('adduser', this.Username);
                     break;
 
                 case MessageType.CLEAR:
                     // NOTHING
                     break;
+                case 'connexionCallback':
+                    if(data.success){
+                        this.IsConnectedToSession = true;
+                        return;
+                    }
+                    this.SelectedSession = {};
+                    data = data.message;
                 case MessageType.ERROR:
                     $('#messages').append($('<li>').text(data).css("background-color", "red").css("color", "white"));
                     break;
@@ -105,9 +139,15 @@ export class AppComponent {
                     break;
             }
             var element = document.getElementById("messages");
-            element.scrollTop = element.scrollHeight;
+            if(element)
+                element.scrollTop = element.scrollHeight;
         });
 
+    }
+
+    public connectToSession(session: any){
+        this.SelectedSession = session;
+        this.socket.emit('choiceSession', this.Username, session.Guid);
     }
 
     get State() : number { return this._currentState; }

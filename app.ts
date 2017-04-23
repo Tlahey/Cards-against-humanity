@@ -30,15 +30,19 @@ ioServer.on('connection', (socket) => {
     // On attends que le jeu soit intialisé
     _game.isInitialized().then(() => {
 
+        // On envoi les sessions 
+        socket.emit('message', 'getSessions', _game.getSessionsInformations());
+
         // On envoi une action de demande de username
         socket.emit('message', 'GetUserName', {'message': "Quel est votre pseudo ?"});
- 
-        // Quand on reçoit l'information de l'utilisateur
-        socket.on('adduser', (userName:string) => {
+
+        socket.on('choiceSession', (userName:string, sessionGuid : string) => {
             // Un joueur s'est connecté au jeu
-            console.log('[App] - User ' + userName + ' connected');
+            console.log(`[App] - User [${userName}] try to connect session [${sessionGuid}]`);
             // On ajoute le joueur au jeu
-            _game.connectPlayer(socket, userName);
+            _game.connectPlayer(socket, userName, sessionGuid).then(connexionReturn => {
+                socket.emit('message', 'connexionCallback', connexionReturn);
+            });
         });
 
         // todo : déconnexion

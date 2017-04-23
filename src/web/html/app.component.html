@@ -1,61 +1,78 @@
-<div >
+<!-- PARTIE SELECTION DE LA SESSION --> 
+<div id="content-game">
+    <div *ngIf="IsConnectedToSession == false">
+        <div>Selection de la session</div>
+        <br/>
 
-    Nom de l'utilisateur : {{ Username }} <br/>
-    Current State : {{ getCurrentState() }}<br/>
-
-    Payload : <pre>{{PlayloadDatas | json}}</pre>
-    <div >
-        <!-- QUESTIONS --> 
-        <div >
-            <div class="card card-question">
-                {{ QuestionCard.Value }}
-            </div>
-
-            <div id="content-message">
-                <ul id="messages" >
-                    <!--<li *ngFor="let planet of planets">{{planet}}</li>-->
-                </ul>
-
-                <div id="input-message">
-                    <input id="m" />
-                    <button (click)="submit()">Send</button>
-                </div>
-            </div>
-            <div>
-                Scores : 
-                <div *ngFor="let player of Players">
-                    {{ formatPlayerInformations(player) }}
-                </div>
-            </div>
-        </div>
-
-        <br /> 
-
-        <!-- REPONSE -->
-        <div *ngIf="Player != undefined"> 
-
-            <!-- Que pour les joueurs -->
-            <div *ngIf="State == 6 && Player.Type == 1">
-                <div class="card card-reponse" 
-                    *ngFor="let userAwnser of CurrentUserAwnserCards"
-                    (click)="selectCard(userAwnser)">
-                    {{ userAwnser.Value }}
-                </div>
-            </div>
-
-            <!-- Pour tous le monde, seulement le master peut sélectionner -->
-            <div *ngIf="State == 7">
-                EN ATTENTE DU MASTER :
-                <div class="card card-reponse" 
-                    *ngFor="let usersAwnserCard of UsersAwnserCards"
-                    (click)="selectCard(usersAwnserCard)">
-                    {{ usersAwnserCard.Value }}
-                </div>
-            </div>
-        </div> 
-
-     
+        <ul>
+            <li *ngFor="let session of AvailablesSessions" > 
+                {{ session.Name }}
+                | Connected Players : {{ session.CountPlayers }} / {{ session.MaxPlayers }}
+                <button (click)="connectToSession(session)">Entrer</button>
+            </li>
+        </ul>
     </div>
 
+    <!-- PARIE JEU -->
+    <div *ngIf="IsConnectedToSession == true">
 
+        Session : {{ SelectedSession | json }} <br/>
+        Nom de l'utilisateur : {{ Username }} <br/>
+        Current State : {{ getCurrentState() }}<br/>
+
+        Payload : <pre>{{PlayloadDatas | json}}</pre>
+        <div >
+            <!-- QUESTIONS --> 
+            <div >
+                <div class="card card-question">
+                    {{ QuestionCard.Value }}
+                </div>
+
+                <div>
+                    Scores : 
+                    <div *ngFor="let player of Players">
+                        {{ formatPlayerInformations(player) }}
+                    </div>
+                </div>
+            </div>
+
+            <br /> 
+
+            <!-- REPONSE -->
+            <div *ngIf="Player != undefined"> 
+
+                <!-- Que pour les joueurs -->
+                <div *ngIf="State == 6 && Player.Type == 1">
+                    <div class="card card-reponse" 
+                        *ngFor="let userAwnser of CurrentUserAwnserCards"
+                        (click)="selectCard(userAwnser)">
+                        {{ userAwnser.Value }}
+                    </div>
+                </div>
+
+                <!-- Pour tous le monde, seulement le master peut sélectionner -->
+                <div *ngIf="State == 7">
+                    EN ATTENTE DU MASTER :
+                    <div class="card card-reponse" 
+                        *ngFor="let usersAwnserCard of UsersAwnserCards"
+                        (click)="selectCard(usersAwnserCard)">
+                        {{ usersAwnserCard.Value }}
+                    </div>
+                </div>
+            </div> 
+
+        
+        </div>
+
+
+    </div>
+</div>
+
+<!-- PARTIE MESSAGES -->
+<div id="content-message">
+    <ul id="messages" ></ul>
+    <div id="input-message">
+        <input id="m" />
+        <button (click)="submit()">Send</button>
+    </div>
 </div>

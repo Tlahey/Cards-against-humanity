@@ -8,6 +8,7 @@ import Database from './database/database';
 import CardQuestion from './card/cardQuestion';
 import CardAwnser from './card/cardAwnser';
 import { Session } from './session';
+import { Configuration } from "./configuration";
 
 export default class Game {
 
@@ -28,53 +29,82 @@ export default class Game {
         this._databaseCtrl.getCards().then((datas) => {
             this._cardQuestion = datas.CardsQuestion;
             this._cardAwnser = datas.CardsAwnser;
+
+            console.log("[Game] Création des sessions");
+            for(var i = 0, ii = Configuration.Session.OPEN_SESSION; i < ii; i++){
+                this.createNewSession();
+            }
+
             this._isInitialize.resolve();
             console.log("[Game] The Game is Initilized");
         });
+
     }
     
+    public getSessionsInformations(){
+        let sessionsInformations : any = [];
+        this._sessionArray.forEach(session => {
+            sessionsInformations.push({
+                'Guid': session.Guid,
+                'State': session.SessionState,
+                'Name': session.SessionName,
+                'CountPlayers': session.players.length,
+                'MaxPlayers': Configuration.Game.MAX_PLAYERS
+            });
+        });
+        return sessionsInformations;
+    }
+
+    public removeSession(session : Session){
+        let index = this._sessionArray.findIndex(s => s.Guid == session.Guid);
+        if(index > -1)
+            this._sessionArray.splice(index, 1);
+    }
+
+    public createNewSession(){
+        this._sessionArray.push(new Session(this._ioServer, this));
+    }
+
     public isInitialized(){
         return this._isInitialize.promise;
     }
 
-    public connectPlayer(playerSocket : SocketIO.Socket, playerUserName: string) : void{
+    public connectPlayer(playerSocket : SocketIO.Socket, playerUserName: string, playerSessionGuid : string) : Promise<any>{
         
-        this.isInitialized().then(() => {
-            // On crée l'objet player
-            // On trouve une session qui n'est pas complète
-            // Si aucune session on en crée une nouvelle
-            let sessionsAvailable = this._sessionArray.find((data) => !data.isFull());
+        return this.isInitialized().then(() => {
 
-            // Si aucune session n'a été trouvée
-            if(sessionsAvailable == undefined){
-                let newSession = new Session(this._ioServer, this);
-                newSession.joinPlayer(new Player(playerSocket, newSession, playerUserName));
-                this._sessionArray.push(newSession);
-            } else {
-                // On prends la première session et on ajoute l'utilisateur
-                sessionsAvailable.joinPlayer(new Player(playerSocket, sessionsAvailable, playerUserName));
-            }
+            // TODO : Changement 
+            // On récupère la session par rapport au playerSessionGuid
+            let sessionsAvailable = this._sessionArray.find((session) => session.Guid == playerSessionGuid);
+            if(sessionsAvailable == undefined)
+                return {
+                    'success': false,
+                    'message': 'Session guid not found'
+                };
+
+            if(sessionsAvailable.isFull())
+                return {
+                    'success': false,
+                    'message': 'Session guid is full'
+                };
+
+            if(sessionsAvailable.players.find(p => p.Nickname == playerUserName))
+                return {
+                    'success': false,
+                    'message': `User ${playerUserName} is in the session`
+                }
+
+            sessionsAvailable.joinPlayer(new Player(playerSocket, sessionsAvailable, playerUserName));
+            return {
+                'success': true
+            };
         });
 
     }
 
     public connectExistingPlayer(player : Player) : void{
-        this.isInitialized().then(() => {
-
-            let sessionsAvailable = this._sessionArray.find((data) => !data.isFull());
-
-            // Si aucune session n'a été trouvée
-            if(sessionsAvailable == undefined){
-                let newSession = new Session(this._ioServer, this);
-                player.setSession(newSession);
-                newSession.joinPlayer(player);
-                this._sessionArray.push(newSession);
-            } else {
-                // On prends la première session et on ajoute l'utilisateur
-                player.setSession(sessionsAvailable);
-                sessionsAvailable.joinPlayer(player);
-            }
-        });
+        // On retourne à l'utilisateur la liste des sessions
+        player.PlayerSocket.emit('message', 'getSessions', this.getSessionsInformations());
     }
 
     public getRandomCardQuestion(){
