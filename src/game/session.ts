@@ -175,6 +175,11 @@ export class Session{
         });
     }
 
+    public playerLeave(player : Player){
+        this.sendToAllPlayers(`[Session] Player ${player.Nickname} disconnected`, MessageType.IMPORTANT);
+        this._presShutDownSession();
+    }
+
     public newQuestion(){
         this.selectQuestionCard();
         this.sendToAllPlayers(`[Session] Nouvelle question : ${this._selectedQuestionCard.Value.replace("{0}", "____")}`, MessageType.INFORMATION);
@@ -345,23 +350,27 @@ export class Session{
                 this.sendToAllPlayers(`Vainqueur : ${winner.Nickname}`, MessageType.IMPORTANT);
 
                 this.updateAllPlayers();
+                this._presShutDownSession();
 
-                this.sendToAllPlayers(`Affectation à une nouvelle partie dans 10 secondes.`, MessageType.IMPORTANT);
-                this.players.forEach(player => {
-                    player.reinitialize(true);
-
-                    // On reconnecte l'ensemble des joueurs dans une nouvelle session.
-                    setTimeout(((p) => {
-                        this._game.connectExistingPlayer(p);   
-                        // On ferme la session
-                        this.closeSession();
-                    })(player), 10000);
-                    
-                });
                 return;
         }
         
         this.updateAllPlayers();
+    }
+
+    private _presShutDownSession(){
+        this.sendToAllPlayers(`Retour au menu des sessions dans 10 secondes.`, MessageType.IMPORTANT);
+        this.players.forEach(player => {
+            player.reinitialize(true);
+
+            // On reconnecte l'ensemble des joueurs dans une nouvelle session.
+            setTimeout(((p) => {
+                this._game.connectExistingPlayer(p);   
+                // On ferme la session
+                this.closeSession();
+            })(player), 10000);
+            
+        });
     }
 
     private closeSession(){

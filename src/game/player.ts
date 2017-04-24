@@ -37,6 +37,12 @@ export class Player implements IPlayerInformations {
         PlayerSocket.leave('');
         PlayerSocket.join(this._session.Guid);
 
+        // todo : déconnexion
+        PlayerSocket.on('disconnect', () => {
+            console.log(`Player [${this.Nickname}] disconnected`);
+            this._session.playerLeave(this);
+        });
+
         this.Score = 0;
         this.reinitialize(false);
 
