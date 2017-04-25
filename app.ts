@@ -42,7 +42,8 @@ ioServer.on('connection', (socket) => {
             // On ajoute le joueur au jeu
             _game.connectPlayer(socket, userName, sessionGuid).then(connexionReturn => {
                 socket.emit('message', 'connexionCallback', connexionReturn);
-                socket.emit('message', 'getSessions', _game.getSessionsInformations());
+                if(connexionReturn.success == false)
+                    socket.emit('message', 'getSessions', _game.getSessionsInformations());
             });
         });
         

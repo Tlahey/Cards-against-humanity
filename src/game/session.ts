@@ -62,6 +62,7 @@ export class Session{
     private _lastWinner:Player;
     private _sessionState: SessionState;
     private _selectedQuestionCard: CardQuestion;
+    get GameEnded() : boolean { return this._sessionState == SessionState.GAME_END; }
     SessionName : string;
 
     get SessionState():SessionState{
@@ -208,18 +209,22 @@ export class Session{
         var currentCountCards = player.Cards.length;
 
         var tempArray = [];
+        var nbSendCardToPlayer = 0;
         for(var i = currentCountCards; i < cardsCountByPlayer; i++){
             tempArray.push(this._cardsAwnser[i]);
+            nbSendCardToPlayer++;
         }
 
         // On ajoute les nouvelles cartes au tableau de carte de l'utilisateur
         player.Cards = player.Cards.concat(tempArray);
 
         // On enlève le compte des éléments dans le awserCards
-        this._cardsAwnser.splice(0, currentCountCards);
+        this._cardsAwnser.splice(0, nbSendCardToPlayer);
 
         // On ajoute à la fin les cartes qu'on vien d'enlever pour que le jeu soit infini
-        this._cardsAwnser = this._cardsAwnser.concat(tempArray);       
+        tempArray.forEach(c => {
+            this._cardsAwnser.push(c);
+        });
     }
 
     public update(playerGuid? : string){
@@ -349,7 +354,7 @@ export class Session{
 	            // On réinscrit les joueurs dans une nouvelle session
                 this.sendToAllPlayers(`Vainqueur : ${winner.Nickname}`, MessageType.IMPORTANT);
 
-                this.updateAllPlayers();
+                // this.updateAllPlayers();
                 this._presShutDownSession();
 
                 return;
@@ -361,16 +366,21 @@ export class Session{
     private _presShutDownSession(){
         this.sendToAllPlayers(`Retour au menu des sessions dans 10 secondes.`, MessageType.IMPORTANT);
         this.players.forEach(player => {
-            player.reinitialize(true);
-
+            
             // On reconnecte l'ensemble des joueurs dans une nouvelle session.
-            setTimeout(((p) => {
+            // TODO a revoir
+            /*setTimeout(((p) => {
                 this._game.connectExistingPlayer(p);   
                 // On ferme la session
-                this.closeSession();
+                player.reinitialize(true);
             })(player), 10000);
-            
+            */
         });
+
+        setTimeout(() => {
+            this.closeSession();
+        }, 20000);
+        
     }
 
     private closeSession(){

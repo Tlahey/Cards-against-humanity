@@ -5,8 +5,8 @@ export module Configuration{
     }
 
     export class Game{
-        public static POINTS_FOR_WIN = 1;
-        public static MAX_PLAYERS = 2;
-        public static CARDS_BY_PLAYERS = 2;
+        public static POINTS_FOR_WIN = 10;
+        public static MAX_PLAYERS = 3;
+        public static CARDS_BY_PLAYERS = 4;
     }
 }

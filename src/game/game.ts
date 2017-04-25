@@ -44,13 +44,14 @@ export default class Game {
     public getSessionsInformations(){
         let sessionsInformations : any = [];
         this._sessionArray.forEach(session => {
-            sessionsInformations.push({
-                'Guid': session.Guid,
-                'State': session.SessionState,
-                'Name': session.SessionName,
-                'CountPlayers': session.players.length,
-                'MaxPlayers': Configuration.Game.MAX_PLAYERS
-            });
+            if(!session.GameEnded)
+                sessionsInformations.push({
+                    'Guid': session.Guid,
+                    'State': session.SessionState,
+                    'Name': session.SessionName,
+                    'CountPlayers': session.players.length,
+                    'MaxPlayers': Configuration.Game.MAX_PLAYERS
+                });
         });
         return sessionsInformations;
     }
@@ -119,23 +120,19 @@ export default class Game {
         return randomAwnser;
     }
 
-    private shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+    private shuffle(a) {
 
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
+        let cards : Array<any> = [];
+        a.forEach(element => {
+            cards.push(element);
+        });
 
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
+        for (let i = a.length; i; i--) {
+            let j = Math.floor(Math.random() * i);
+            [a[i - 1], a[j]] = [a[j], a[i - 1]];
         }
 
-        return array;
+        return cards;
     }
 
 }
