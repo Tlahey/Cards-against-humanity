@@ -109,30 +109,14 @@ export default class Game {
     }
 
     public getRandomCardQuestion(){
-        let randomQuestion = this.shuffle(this._cardQuestion.slice());
+        let randomQuestion = this._cardQuestion.slice().shuffle();
         // console.log("[Game] randomQuestion : ", randomQuestion);
         return randomQuestion;
     }
 
     public getRandomCardAwnser(){
-        let randomAwnser = this.shuffle(this._cardAwnser.slice());
+        let randomAwnser = this._cardAwnser.slice().shuffle();
         // console.log("[Game] randomAwnser : ", randomAwnser);
         return randomAwnser;
     }
-
-    private shuffle(a) {
-
-        let cards : Array<any> = [];
-        a.forEach(element => {
-            cards.push(element);
-        });
-
-        for (let i = a.length; i; i--) {
-            let j = Math.floor(Math.random() * i);
-            [a[i - 1], a[j]] = [a[j], a[i - 1]];
-        }
-
-        return cards;
-    }
-
 }

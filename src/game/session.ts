@@ -118,7 +118,7 @@ export class Session{
 
         let response : payloadResponse = {
             'Players': this.players.map(p => p.toPlayerInformations()),
-            'UsersAwnserCards': (usersSelectedCards.length == (this.players.length - 1)) ? usersSelectedCards : undefined,
+            'UsersAwnserCards': (usersSelectedCards.length == (this.players.length - 1)) ? usersSelectedCards.shuffle() : undefined,
             'QuestionCard': {
                 'Guid': this._selectedQuestionCard.Guid,
                 'Value': this._selectedQuestionCard.Value.replace("{0}", "____")
@@ -433,5 +433,32 @@ export class Utils {
         name = name.replace(/[.]/g, "");
         
         return name;
+    }
+}
+
+declare global {
+  interface Array<T> {
+    remove(elem: T): Array<T>;
+    shuffle() : Array<T>;
+  }
+}
+
+if (!Array.prototype.remove) {
+  Array.prototype.remove = function<T>(elem: T): T[] {
+    return this.filter(e => e !== elem);
+  }
+}
+
+if (!Array.prototype.shuffle) {
+    Array.prototype.shuffle = function() {
+        var cards = [];
+        this.forEach(element => {
+            cards.push(element);
+        });
+        for (let i = cards.length; i; i--) {
+            let j = Math.floor(Math.random() * i);
+            [cards[i - 1], cards[j]] = [cards[j], cards[i - 1]];
+        }
+        return cards;
     }
 }
