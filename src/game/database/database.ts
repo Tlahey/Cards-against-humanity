@@ -11,8 +11,6 @@ import CardAwnser from '../card/cardAwnser';
     Sites a importer : 
         - http://s3.amazonaws.com/cah/CAH_FrenchByCluchier.pdf
         - http://s3.amazonaws.com/cah/CAH_French_CA_ByAnaxagor.pdf
-        - https://leschiensdelenfer.files.wordpress.com/2015/07/questionscah_complet_e-burger.pdf
-        - https://leschiensdelenfer.files.wordpress.com/2015/07/rc3a9ponsescah_complet_e-burger.pdf
 */
 export default class DataBase{
     
