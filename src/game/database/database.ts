@@ -7,6 +7,11 @@ import { Player } from '../player';
 import CardQuestion from '../card/cardQuestion';
 import CardAwnser from '../card/cardAwnser';
 
+interface ICardResult {
+    CardsQuestion: CardQuestion[];
+    CardsAwnser: CardAwnser[];
+}
+
 /*
     Sites a importer : 
         - http://s3.amazonaws.com/cah/CAH_FrenchByCluchier.pdf
@@ -15,8 +20,8 @@ import CardAwnser from '../card/cardAwnser';
 export default class DataBase{
     
     // Récupère l'ensemble des cartes de la base de données
-    public getCards() : Promise<CardResult>{
-        return new Promise((success, reject) => {
+    public getCards() : Promise<any>{
+        return new Promise<ICardResult>((success, reject) => {
            fs.readFile('./src/datas/cards.json', 'utf8', (err, datas) => {
                 
                 if(err){
@@ -27,10 +32,10 @@ export default class DataBase{
                 let jsonCardDatas: CardDatasJSON = JSON.parse(datas);
                 console.log("[Database] getCards OK");
                             
-                success(new CardResult(
-                    this._createQuestionCards(jsonCardDatas.questions),
-                    this._createAwnserCard(jsonCardDatas.awnsers)
-                ));
+                success({
+                    'CardsQuestion': this._createQuestionCards(jsonCardDatas.questions),
+                    'CardsAwnser': this._createAwnserCard(jsonCardDatas.awnsers)
+                } as ICardResult);
             });           
         });
     }
@@ -55,9 +60,3 @@ export default class DataBase{
     }
 }
 
-class CardResult {
-
-    constructor(public CardsQuestion: CardQuestion[], public CardsAwnser: CardAwnser[]){
-
-    }
-}

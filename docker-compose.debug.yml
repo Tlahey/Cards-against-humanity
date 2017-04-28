@@ -1,0 +1,19 @@
+
+version: '2'
+
+services:
+  limitlimit:
+    image: limitlimit:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+    ports:
+      - 3000:3000
+      - 9000:9000
+      - 5858:5858
+    volumes:
+      - .:/usr/src/app
+    ## set your startup file here
+    command: node --debug=5858 app.js

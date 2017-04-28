@@ -81,7 +81,7 @@ export default class Game {
                 return {
                     'success': false,
                     'message': 'Session guid not found'
-                };
+                } as { success : boolean, message : string };
 
             if(sessionsAvailable.isFull())
                 return {

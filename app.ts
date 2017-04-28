@@ -40,7 +40,7 @@ ioServer.on('connection', (socket) => {
             // Un joueur s'est connecté au jeu
             console.log(`[App] - User [${userName}] try to connect session [${sessionGuid}]`);
             // On ajoute le joueur au jeu
-            _game.connectPlayer(socket, userName, sessionGuid).then(connexionReturn => {
+            _game.connectPlayer(socket, userName, sessionGuid).then((connexionReturn) => {
                 socket.emit('message', 'connexionCallback', connexionReturn);
                 if(connexionReturn.success == false)
                     socket.emit('message', 'getSessions', _game.getSessionsInformations());
