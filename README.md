@@ -1,29 +1,26 @@
-# README #
+#
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## Installation
 
-### What is this repository for? ###
+```
+$ npm install
+```
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+```
+$ tsc -p .
+```
 
-### How do I get set up? ###
+```
+$ node app.js
+```
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+After go on the url `http://localhost:3000` and enter your pseudo.
+Chose a room and wait max player :)
 
-### Contribution guidelines ###
+## Add new cards
 
-* Writing tests
-* Code review
-* Other guidelines
+All cards are in french, you can add cards in the `src/datas/cards.json` file.
 
-### Who do I talk to? ###
+## Perspective of evolution
 
-* Repo owner or admin
-* Other community or team contact
+Play with pictures instead of question or both
